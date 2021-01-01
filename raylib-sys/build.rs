@@ -67,7 +67,10 @@ fn build_with_cmake(src_path: &str) {
     match platform {
         Platform::Desktop => conf.define("PLATFORM", "Desktop"),
         Platform::Web => conf.define("PLATFORM", "Web"),
-        Platform::RPI => conf.define("PLATFORM", "Raspberry Pi"),
+        Platform::RPI => conf.define("PLATFORM", "Raspberry Pi")
+            .cflag("-I/opt/vc/include")
+            .cflag("-L/opt/vc/lib")
+            .cflag("-D_GNU_SOURCE"),
     };
 
     let dst = conf.build();
@@ -241,7 +244,7 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
         // Cargo web takes care of this but better safe than sorry
         env::set_var("EMMAKEN_CFLAGS", "-s USE_GLFW=3");
         Platform::Web
-    } else if target.contains("armv7-unknown-linux") {
+    } else if target.contains("armv7-unknown-linux") || target.contains("arm-unknown-linux") {
         Platform::RPI
     } else {
         Platform::Desktop
